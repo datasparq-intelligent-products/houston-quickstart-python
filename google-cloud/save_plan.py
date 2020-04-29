@@ -4,8 +4,7 @@ import os
 
 KEY = os.getenv('API_KEY')
 ENV = os.getenv('PIPELINE_ENV', 'dev')
-
-ps_topic = "houston-cloud-function-topic"
+ps_topic = os.getenv('PS_TOPIC', "houston-cloud-function-topic")
 
 # define plan - some parameters are dependent on the environment
 plan = {
