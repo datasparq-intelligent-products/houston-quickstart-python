@@ -15,7 +15,7 @@ def main(event, context):
     """
 
     # initialise Houston client
-    h = Houston(plan="houston-quickstart-jwatkinson", api_key=KEY)
+    h = Houston(plan="houston-quickstart", api_key=KEY)
 
     # get instructions from the message that triggered this function
     stage_info = h.extract_stage_information(event["data"])
