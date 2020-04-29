@@ -18,7 +18,13 @@ def main(event, context):
     # get instructions from the message that triggered this function
     stage_info = h.extract_stage_information(event["data"])
     stage = stage_info['stage']
-    mission_id = stage_info['mission_id']
+
+    if stage == "start":
+        # start a new mission and get an ID for it
+        mission_id = h.create_mission()
+    else:
+        # otherwise continue the existing mission
+        mission_id = stage_info['mission_id']
 
     # call houston to start the stage
     h.start_stage(stage, mission_id=mission_id)
