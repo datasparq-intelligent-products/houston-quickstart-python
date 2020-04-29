@@ -1,2 +1,2 @@
-houston-client>=1.0.0
+houston-client[gcp]>=1.0.0
 google-cloud-logging==1.15.0
