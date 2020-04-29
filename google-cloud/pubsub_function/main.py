@@ -43,8 +43,8 @@ def main(event, context):
     elif 'build-report' in stage:
         build_report(stage_info['source_table'])
 
-    else:
-        raise ValueError(f"Didn't know what task to run for stage: '{stage}'")
+    #else:
+    #    raise ValueError(f"Didn't know what task to run for stage: '{stage}'")
 
     #
     #
