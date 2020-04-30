@@ -57,6 +57,11 @@ _JSON_ and have the following structure:
 }
 ```
 
+We want to define the following plan, comprised of 7 stages:
+
+![](./plan.png)
+
+
 We also need to add parameters to each stage so that the Python function running each one knows what to do. Houston's 
 Python client expects the plan as a dictionary so we can define it in Python and make some parameters dynamic:
 
