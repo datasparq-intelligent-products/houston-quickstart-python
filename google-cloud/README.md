@@ -133,10 +133,14 @@ that will execute a Python function corresponding to the Houston stage it's runn
 
 ## Start a Mission
 
-1. Start a mission by calling the cloud function with a parameter stage="start". We can either use the 'testing' feature on the Cloud Console, or call the trigger uri directly with bash. If using the Cloud Console, paste the following JSON into the 'triggering event' text area:
+1. Start a mission by calling the cloud function with a parameter stage="start". For convenience, we can use the Cloud Console to send a Pub/Sub message. Go to [console.cloud.google.com/cloudpubsub](https://console.cloud.google.com/cloudpubsub) and click on the _houston-cloud-function-topic_ topic. 
+
+2. Click _Publish message_ and paste the following into the message body:
    ```json
    {"stage": "start"}
    ```
+
+3. Click _Publish_. This will immediately trigger the cloud function. 
 
 2. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
 mission.
