@@ -1,72 +1,77 @@
 
-from houston import Houston
+from houston import client
 import os
 
-KEY = os.getenv('API_KEY')
-ENV = os.getenv('PIPELINE_ENV', 'dev')
-ps_topic = os.getenv('PS_TOPIC', "houston-cloud-function-topic")
+KEY = os.getenv('HOUSTON_KEY')
 
-# define plan - some parameters are dependent on the environment
+url = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
+bucket_name = "gcs-training-cf-34th"
+file_name = "us-counties.csv"
+query_file_name = "casualties_percentage_by_state.sql"
+target_table_name = "clean"
+target_dataset = "todor_training_clean"
+dataset_id = "todor_training_raw"
+table_id = "raw"
+gcs_uri = "gs://gcs-training-cf-35th/corona_cases.csv"
+
+
 plan = {
-  "name": "houston-quickstart",
+  "name": "training-data-pipeline-todor",
   "stages": [
-    # a dummy stage at the start is useful for triggering the pipeline with one request
     {
       "name": "start",
-      "downstream": ["upload-file-customers", "upload-file-sales"],
-    },
-    {
-      "name": "upload-file-customers",
-      "downstream": "run-query-clean-customers",
+      "downstream": "download-covid-cases-data",
       "params": {
-        "psq": ps_topic,
-        "file_location": f"./data-bucket-{ENV}/customers_raw.csv",
+        "psq": "begin-pipeline",
+        "time_to_wait": "3",
       }
     },
     {
-      "name": "run-query-clean-customers",
+      "name": "download-covid-cases-data",
+      "downstream": ["wait-5-seconds", "load-corona-data-into-bigquery"],
       "params": {
-        "psq": ps_topic,
-        "query_name": "clean_customers.sql"}
+        "psq": "get-file-from-url",
+        "url": url,
+        "bucket_name": bucket_name,
+        "file_name": file_name,
+      }
     },
     {
-      "name": "upload-file-sales",
-      "downstream": "run-query-clean-sales",
+      "name": "wait-5-seconds",
       "params": {
-        "psq": ps_topic,
-        "file_location": f"./data-bucket-{ENV}/sales_raw.csv"}
+        "psq": "begin-pipeline",
+        "time_to_wait": "5",
+      }
+    },
+    {
+      "name": "load-corona-data-into-bigquery",
+      "params": {
+        "psq": "save-file-to-BQ",
+        "dataset_id": dataset_id,
+        "table_id": table_id,
+        "gcs_uri": gcs_uri,
+      }
     },
     {
       "name": "run-query-clean-sales",
+      "upstream": ["wait-5-seconds", "load-corona-data-into-bigquery"],
       "params": {
-        "psq": ps_topic,
-        "query_name": "clean_sales.sql"}
+        "psq": 	"execute-query",
+        "query_file_name": query_file_name,
+        "target_table_name": target_table_name,
+        "target_dataset": target_dataset,
+      }
     },
-    {
-      "name": "run-query-report",
-      "upstream": [
-        "run-query-clean-customers",
-        "run-query-clean-sales"
-      ],
-      "downstream": "build-report",
-      "params": {
-        "psq": ps_topic,
-        "query_name": "report_data.sql"}
-    },
-    {
-      "name": "build-report",
-      "params": {
-        "psq": ps_topic,
-        "source_table": "report_data"}
-    }
   ]
 }
 
 # initialise Houston client
-h = Houston(plan=plan, api_key=KEY)
+h = client.Houston(plan=plan, api_key=KEY)
 
 # note: if you want to change an existing plan you'll need to delete it first
 # h.delete_plan()
 
 # save the plan
 h.save_plan()
+
+# what variables to pass as env.variables and which to pass through Houston + which to set as secrets
