@@ -1,10 +1,10 @@
 
 import json
 
-topic = "houston-cloud-function-topic-XXX"  # this is the Pub/Sub topic name that will be used to trigger your service.
+topic = "houston-cloud-function-topic"  # this is the Pub/Sub topic name that will be used to trigger your service.
 
 plan = {
-  "name": "training-data-pipeline-XXX",
+  "name": "houston-quickstart",
   "stages": [
     {
       "name": "start",

@@ -101,19 +101,17 @@ A plan has been defined in Python in generate_plan.py. We'll use the Houston Pyt
    ```
    **Never commit this key anywhere in your repo!**
 
-2. Open _generate_plan.py_ and change the placeholder values 'XXX' to make your plan unique.
-
-3. Run _generate_plan.py_ to create plan.json:
+2. Run _generate_plan.py_ to create plan.json:
    ```bash
    python generate_plan.py
    ```
 
-4. Save the plan
+3. Save the plan
    ```bash
    python -m houston save --plan plan.json
    ```
 
-5. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check your plan has appeared. Click on it to 
+4. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check your plan has appeared. Click on it to 
 view the DAG. Click on a stage to view its params. 
 
 ## Deploy a Cloud Function
@@ -129,21 +127,21 @@ that will execute a Python function corresponding to the Houston stage it's runn
 2. Deploy with the function either from the [Cloud Console](https://console.cloud.google.com/functions), or with gcloud:
 
    If using the Cloud Console:
-     - Set the trigger to Pub/Sub and create a new topic called _'houston-cloud-function-topic-XXX'_ 
+     - Set the trigger to Pub/Sub and create a new topic called _'houston-cloud-function-topic'_ 
      - Set the Runtime to Python 3.9
      - Copy _pusbsub_function/main.py_ into the box for MAIN.PY  
      - Copy _pusbsub_function/requirements.txt_ into the box for REQUIREMENTS.TXT
-     - Add an environment variable with NAME = `GCP_PROJECT` and VALUE = `training-dsq`
+     - Add an environment variable with NAME = `GCP_PROJECT` and VALUE = _your GCP project ID_
      - Add an environment variable with NAME = `HOUSTON_KEY` and VALUE = _your houston api key_
      - Click _CREATE_
 
    If using gcloud, run the following in the command line. (you may want to change the region to one closer to you):
 
    ```bash
-   gcloud config set project training-dsq
-   gcloud functions deploy houston-cloud-function-XXX --runtime python39 --trigger-topic houston-cloud-function-topic-XXX \
+   gcloud config set project '<your project id>'
+   gcloud functions deploy houston-cloud-function --runtime python39 --trigger-topic houston-cloud-function-topic \
        --source pubsub_function --entry-point main --region europe-west2 --timeout 540 \
-       --set-env-vars GCP_PROJECT=training-dsq --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
+       --set-env-vars GCP_PROJECT='<your project id>' --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
    ```
    Note: the timeout is set to the maximum of 9 minutes. The default timeout may not be enough for most stages. 
 
@@ -153,7 +151,7 @@ that will execute a Python function corresponding to the Houston stage it's runn
 
 1. Start a mission with the Python client from the command line: 
    ```bash
-   python -m houston start --plan training-data-pipeline-XXX
+   python -m houston start --plan houston-quickstart
    ```
 
 2. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
@@ -161,12 +159,12 @@ mission.
 
 Congratulations! You've got a completely serverless pipeline. 
 
-Now go to [your Cloud Function](https://console.cloud.google.com/functions/list?referrer=search&project=training-dsq) and
+Now go to [your Cloud Function](https://console.cloud.google.com/functions/list) and
 view the logs to verify that the stages actually ran.
 
 ## (Optional) Clean Up
 
 1. Delete your plan:
    ```bash
-   python -m houston delete --plan training-data-pipeline-XXX
+   python -m houston delete --plan houston-quickstart
    ```
