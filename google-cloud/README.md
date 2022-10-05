@@ -22,7 +22,7 @@ select the **_Free_** plan
 
 4. Install the Python client:
    ```bash
-   pip install houston-client
+   pip install houston-client==1.2.0b2
    ```
 
 5. Clone the quickstart repository:
@@ -73,14 +73,16 @@ plan = {
       "name": "upload-file-customers",
       "downstream": "run-query-clean-customers",
       "params": {
-        "psq": ps_topic,
+        "topic": ps_topic,
+        "operation": "query",
         "file_location": f"./data-bucket-{ENV}/customers_raw.csv"
       }
     },
     {
       "name": "run-query-clean-customers",
       "params": {
-        "psq": ps_topic,
+        "topic": ps_topic,
+        "operation": "query",
         "query_name": "clean_customers.sql"
       }
     },
@@ -91,19 +93,25 @@ plan = {
 
 We also need to add a parameter for each stage that we can use to trigger the function that runs that stage.
 
-A plan has been defined in Python in save_plan.py. We'll use the Houston Python client to save the plan.
+A plan has been defined in Python in generate_plan.py. We'll use the Houston Python client to save the plan.
 
 1. Set your Houston API key as an environment variable:  
    ```bash
-   export API_KEY='<your api key>'
+   export HOUSTON_KEY='<your api key>'
    ```
-    
-2. Run _save_plan.py_
+   **Never commit this key anywhere in your repo!**
+
+2. Run _generate_plan.py_ to create plan.json:
    ```bash
-   python save_plan.py
+   python generate_plan.py
    ```
 
-3. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check your plan has appeared. Click on it to 
+4. Save the plan
+   ```bash
+   python -m houston save plan.json
+   ```
+
+5. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check your plan has appeared. Click on it to 
 view the DAG. Click on a stage to view its params. 
 
 ## Deploy a Cloud Function
@@ -112,7 +120,11 @@ For this example we've simplified things by using a single cloud function to exe
 All of the tasks we need to complete in our pipeline can be done with Python, so we'll create a single cloud function 
 that will execute a Python function corresponding to the Houston stage it's running.
 
-1. Deploy with the function either from the [Cloud Console](https://console.cloud.google.com/functions), with with gcloud:
+1. Take a look at [pubsub_function/main.py](pubsub_function/main.py). Note the use of `@service()`. 
+   This is a wrapper, which adds lots of functionality to the function it's decorating, and changes its arguments to the arguments that Google Cloud Functions expects (event and context objects).
+   Take a look at the [source code](https://github.com/datasparq-intelligent-products/houston-python/blob/feature/cloud-function-wrapper/houston/gcp/cloud_function.py) for this wrapper to understand what the resulting function does.  
+
+2. Deploy with the function either from the [Cloud Console](https://console.cloud.google.com/functions), with with gcloud:
 
    If using the Cloud Console:
      - Set the trigger to Pub/Sub and create a new topic called _'houston-cloud-function-topic'_ 
@@ -125,22 +137,19 @@ that will execute a Python function corresponding to the Houston stage it's runn
    If using gcloud, run the following in the command line. (you may want to change the region to one closer to you):
 
    ```bash
+   gcloud config set project '<your gcp project id>'
    gcloud functions deploy houston-cloud-function --runtime python37 --trigger-topic houston-cloud-function-topic \
-       --source pubsub_function --entry-point main --region europe-west1 --timeout 540 --set-env-vars API_KEY=$API_KEY
+       --source pubsub_function --entry-point main --region europe-west1 --timeout 540 --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
    ```
 
-2. Before we can use this function in our pipeline we need to grant it permission to trigger other functions. Grant the Cloud Functions Invoker (roles/cloudfunctions.invoker) role to the calling function identity on the receiving function. By default, this identity is PROJECT_ID@appspot.gserviceaccount.com.
+3. Before we can use this function in our pipeline we need to grant it permission to trigger other functions. Grant the Cloud Functions Invoker (roles/cloudfunctions.invoker) role to the calling function identity on the receiving function. By default, this identity is PROJECT_ID@appspot.gserviceaccount.com.
 
 ## Start a Mission
 
-1. Start a mission by calling the cloud function with a parameter stage="start". For convenience, we can use the Cloud Console to send a Pub/Sub message. Go to [console.cloud.google.com/cloudpubsub](https://console.cloud.google.com/cloudpubsub) and click on the _houston-cloud-function-topic_ topic. 
-
-2. Click _Publish message_ and paste the following into the message body:
-   ```json
-   {"stage": "start"}
+1. Start a mission with the Python client from the command line: 
+   ```bash
+   python -m houston start training-data-pipeline
    ```
-
-3. Click _Publish_. This will immediately trigger the cloud function. 
 
 2. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
 mission.

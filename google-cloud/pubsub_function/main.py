@@ -1,56 +1,22 @@
-"""Example Houston Stage"""
+"""Example Houston Service"""
 
-import os
-from houston.plugin.gcp import GCPHouston as Houston
+from houston.gcp.cloud_function import service
 
-KEY = os.getenv('API_KEY')
-
-
-def main(event, context):
+@service(name="My Service")
+def main(operation: str, file_location: str = None, query_name: str = None, source_table: str = None):
     """Google Cloud Function for running simple Python functions. The function run depends on the Houston stage
-    specified in the message event.
-
-    :param dict event: Event payload - expected to contain Houston 'stage', 'mission_id', and all stage parameters.
-    :param google.cloud.functions.Context context: Metadata for the event.
+    parameters defined in the plan.
     """
 
-    # initialise Houston client
-    h = Houston(plan="houston-quickstart", api_key=KEY)
+    if operation == "upload":
+        upload_file(file_location)
 
-    # get instructions from the message that triggered this function
-    stage_info = h.extract_stage_information(event["data"])
-    stage = stage_info['stage']
+    elif operation == "query":
+        run_query(query_name)
 
-    if stage == "start":
-        # start a new mission and get an ID for it
-        mission_id = h.create_mission()
-        print(f"Starting a new mission with id: {mission_id}")
-    else:
-        # otherwise continue the existing mission
-        mission_id = stage_info['mission_id']
+    elif operation == "report":
+        build_report(source_table)
 
-    # call houston to start the stage
-    stage_detail = h.start_stage(stage, mission_id=mission_id)
-
-    #
-    #
-    #
-
-    # run the main process
-    if 'file_location' in stage_detail["params"]:
-        upload_file(stage_detail["params"]["file_location"])
-
-    elif 'query_name' in stage_detail["params"]:
-        run_query(stage_detail["params"]["query_name"])
-
-    elif 'source_table' in stage_detail["params"]:
-        build_report(stage_detail["params"]["source_table"])
-
-    # call houston to end the stage - response from houston will tell us which stages are next
-    response = h.end_stage(stage, mission_id)
-    # trigger the next stage(s)
-    h.call_stage_via_pubsub(response, mission_id)
-    return
 
 #
 # tasks
