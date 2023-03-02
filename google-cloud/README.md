@@ -22,7 +22,7 @@ select the **_Free_** plan
 
 4. Install the Python client:
    ```bash
-   pip install houston-client==1.2.0b2
+   pip install "houston-client[gcp]==1.2.dev0"
    ```
 
 5. Clone the quickstart repository:
@@ -39,18 +39,26 @@ select the **_Free_** plan
 ## Create a Plan
 
 We need to create a plan that Houston can follow to sting together each stage of this pipeline. Plans are defined in 
-_JSON_ and have the following structure: 
+either YAML or JSON, and have the following structure: 
 
 ```json
 {
   "name": "houston-quickstart",
+  "services": [
+     {
+       "name": "my-microservice",
+       "trigger": {}
+     }
+  ],
   "stages": [
     {
       "name": "upload-file-customers",
+      "service": "my-microservice",
       "downstream": "run-query-clean-customers"
     },
     {
-      "name": "run-query-clean-customers"
+      "name": "run-query-clean-customers",
+      "service": "my-microservice"
     },
     ...
   ]
@@ -61,39 +69,9 @@ We want to define the following plan, comprised of 7 stages:
 
 ![](./plan.png)
 
+The plan definition has been written out in [plan.yaml](plan.yaml).
 
-We also need to add parameters to each stage so that the Python function running each one knows what to do. Houston's 
-Python client expects the plan as a dictionary so we can define it in Python and make some parameters dynamic:
-
-```python
-plan = {
-  "name": "houston-quickstart",
-  "stages": [
-    {
-      "name": "upload-file-customers",
-      "downstream": "run-query-clean-customers",
-      "params": {
-        "topic": ps_topic,
-        "operation": "query",
-        "file_location": f"./data-bucket-{ENV}/customers_raw.csv"
-      }
-    },
-    {
-      "name": "run-query-clean-customers",
-      "params": {
-        "topic": ps_topic,
-        "operation": "query",
-        "query_name": "clean_customers.sql"
-      }
-    },
-    ...
-  ]
-}
-```
-
-We also need to add a parameter for each stage that we can use to trigger the function that runs that stage.
-
-A plan has been defined in Python in generate_plan.py. We'll use the Houston Python client to save the plan.
+We'll use the Houston Python client to save the plan.
 
 1. Set your Houston API key as an environment variable:  
    ```bash
@@ -101,17 +79,12 @@ A plan has been defined in Python in generate_plan.py. We'll use the Houston Pyt
    ```
    **Never commit this key anywhere in your repo!**
 
-2. Run _generate_plan.py_ to create plan.json:
+2. Save the plan
    ```bash
-   python generate_plan.py
+   python -m houston save --plan plan.yaml
    ```
 
-3. Save the plan
-   ```bash
-   python -m houston save --plan plan.json
-   ```
-
-4. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check your plan has appeared. Click on it to 
+3. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check your plan has appeared. Click on it to 
 view the DAG. Click on a stage to view its params. 
 
 ## Deploy a Cloud Function

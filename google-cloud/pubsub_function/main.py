@@ -2,6 +2,7 @@
 
 from houston.gcp.cloud_function import service
 
+
 @service(name="My Service")
 def main(operation: str, file_location: str = None, query_name: str = None, source_table: str = None):
     """Google Cloud Function for running simple Python functions. The function run depends on the Houston stage
