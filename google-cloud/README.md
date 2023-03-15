@@ -22,7 +22,7 @@ select the **_Free_** plan
 
 4. Install the Python client:
    ```bash
-   pip install "houston-client[gcp]==1.2.dev0"
+   pip install "houston-client[gcp]"
    ```
 
 5. Clone the quickstart repository:
@@ -89,13 +89,15 @@ view the DAG. Click on a stage to view its params.
 
 ## Deploy a Cloud Function
 
-For this example we've simplified things by using a single cloud function to execute each stage in the pipeline. This isn't recommended as
-All of the tasks we need to complete in our pipeline can be done with Python, so we'll create a single cloud function 
+For this example we've simplified things by using a single cloud function to execute each stage in the pipeline. 
+All the tasks we need to complete in our pipeline can be done with Python, so we'll create a single cloud function 
 that will execute a Python function corresponding to the Houston stage it's running.
 
 1. Take a look at [pubsub_function/main.py](pubsub_function/main.py). Note the use of `@service()`. 
-   This is a wrapper, which adds lots of functionality to the function it's decorating, and changes its arguments to the arguments that Google Cloud Functions expects (event and context objects).
-   Take a look at the [source code](https://github.com/datasparq-intelligent-products/houston-python/blob/feature/cloud-function-wrapper/houston/gcp/cloud_function.py) for this wrapper to understand what the resulting function does.  
+   This is a wrapper, which adds lots of functionality to the function it's decorating, and changes its arguments 
+   to the arguments that Google Cloud Functions expects (event and context objects).
+   Take a look at the [source code](https://github.com/datasparq-intelligent-products/houston-python/blob/feature/cloud-function-wrapper/houston/gcp/cloud_function.py) 
+   for this wrapper to understand what the resulting function does.  
 
 2. Deploy with the function either from the [Cloud Console](https://console.cloud.google.com/functions), or with gcloud:
 
@@ -104,17 +106,16 @@ that will execute a Python function corresponding to the Houston stage it's runn
      - Set the Runtime to Python 3.9
      - Copy _pusbsub_function/main.py_ into the box for MAIN.PY  
      - Copy _pusbsub_function/requirements.txt_ into the box for REQUIREMENTS.TXT
-     - Add an environment variable with NAME = `GCP_PROJECT` and VALUE = _your GCP project ID_
      - Add an environment variable with NAME = `HOUSTON_KEY` and VALUE = _your houston api key_
      - Click _CREATE_
 
    If using gcloud, run the following in the command line. (you may want to change the region to one closer to you):
 
    ```bash
-   gcloud config set project '<your project id>'
+   gcloud auth login
    gcloud functions deploy houston-cloud-function --runtime python39 --trigger-topic houston-cloud-function-topic \
        --source pubsub_function --entry-point main --region europe-west2 --timeout 540 \
-       --set-env-vars GCP_PROJECT='<your project id>' --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
+       --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
    ```
    Note: the timeout is set to the maximum of 9 minutes. The default timeout may not be enough for most stages. 
 
@@ -122,15 +123,23 @@ that will execute a Python function corresponding to the Houston stage it's runn
 
 ## Start a Mission
 
-1. Start a mission with the Python client from the command line: 
+We will use the Houston Python client to create a mission and then trigger the first stages via Pub/Sub.
+
+1. First, ensure that you have created 'default credentials', which are required to publish Pub/Sub messages:
    ```bash
+   gcloud auth application-default login
+   ```
+
+2. Start a mission with the Python client from the command line: 
+   ```bash
+   export HOUSTON_KEY='<your api key>'
    python -m houston start --plan houston-quickstart
    ```
 
-2. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
+3. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
 mission.
 
-Congratulations! You've got a completely serverless pipeline. 
+Congratulations! You've got a working microservice pipeline. 
 
 Now go to [your Cloud Function](https://console.cloud.google.com/functions/list) and
 view the logs to verify that the stages actually ran.
