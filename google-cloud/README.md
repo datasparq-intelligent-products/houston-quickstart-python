@@ -94,7 +94,7 @@ We'll use the Houston Python client to save the plan.
    If you have a self-hosted solution then you will need another environment variable for the URL and port for your 
 server.
    ```bash
-   export HOUSTON_URL='<domain:port>'
+   export HOUSTON_URL='<your Houston url>'
    ```
 
 2. Save the plan
@@ -156,16 +156,18 @@ We will use the Houston Python client to create a mission and then trigger the f
 2. Start a mission with the Python client from the command line: 
    ```bash
    export HOUSTON_KEY='<your api key>'
+   # If you are self-hosting Houston also add this environment variable:
+   export HOUSTON_URL='<your Houston url>'
    python -m houston start --plan houston-quickstart
    ```
 
-3. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
-mission.
+3. Go to the Datasparq hosted [Houston Dashboard](https://callhouston.io/dashboard) or your self-hosted one and check 
+the active (or possibly already finished) mission.
 
 Congratulations! You've got a working microservice pipeline. 
 
-Now go to [your Cloud Function](https://console.cloud.google.com/functions/list) and
-view the logs to verify that the stages actually ran.
+Now go to [your Cloud Function](https://console.cloud.google.com/functions/list) and view the logs to verify that the 
+stages actually ran.
 
 ## (Optional) Clean Up
 
