@@ -1,0 +1,2 @@
+fastapi
+houston-client>=1.3.0

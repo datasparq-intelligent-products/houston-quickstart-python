@@ -1,0 +1,53 @@
+
+name: houston-quickstart
+
+services:
+  - name: local-http-service
+    trigger:
+      method: http
+      url: http://localhost:8001/houston
+
+stages:
+  - name: start
+    service: local-http-service
+    downstream:
+      - intro
+    params:
+      operation: "start-story"
+
+  - name: intro
+    service: local-http-service
+    downstream:
+      - plot-1
+      - plot-2
+      - plot-3
+    params:
+      operation: "write-story"
+      message: "a dog went to space"
+
+  - name: plot-1
+    service: local-http-service
+    params:
+      operation: "write-story"
+      message: "he said 'bark', but made no sound"
+
+  - name: plot-2
+    service: local-http-service
+    params:
+      operation: "write-story"
+      message: "there were no snacks left"
+
+  - name: plot-3
+    service: local-http-service
+    params:
+      operation: "write-story"
+      message: "his rocket crash landed on the moon"
+
+  - name: end
+    service: local-http-service
+    upstream:
+      - plot-1
+      - plot-2
+      - plot-3
+    params:
+      operation: "end-story"
