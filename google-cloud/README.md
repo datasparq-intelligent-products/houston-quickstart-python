@@ -23,7 +23,7 @@ select the **_Free_** plan
 
 4. Install the Python client:
    ```bash
-   pip install "houston-client[gcp]==1.2.0"
+   pip install "houston-client[gcp]"
    ```
 
 5. Clone the quickstart repository:
@@ -112,8 +112,10 @@ isn't recommended but as all the tasks we need to complete in our pipeline can b
 single cloud function that will execute a Python function corresponding to the Houston stage it's running.
 
 1. Take a look at [pubsub_function/main.py](pubsub_function/main.py). Note the use of `@service()`. 
-   This is a wrapper, which adds lots of functionality to the function it's decorating, and changes its arguments to the arguments that Google Cloud Functions expects (event and context objects).
-   Take a look at the [source code](https://github.com/datasparq-intelligent-products/houston-python/blob/feature/cloud-function-wrapper/houston/gcp/cloud_function.py) for this wrapper to understand what the resulting function does.  
+   This is a wrapper, which adds lots of functionality to the function it's decorating, and changes its arguments 
+   to the arguments that Google Cloud Functions expects (event and context objects).
+   Take a look at the [source code](https://github.com/datasparq-intelligent-products/houston-python/blob/feature/cloud-function-wrapper/houston/gcp/cloud_function.py) 
+   for this wrapper to understand what the resulting function does.  
 
 2. Deploy with the function either from the [Cloud Console](https://console.cloud.google.com/functions), or with gcloud:
 
@@ -132,27 +134,35 @@ single cloud function that will execute a Python function corresponding to the H
 
         If using gcloud, run the following in the command line. (you may want to change the region to one closer to you):
 
-        ```bash
-        gcloud config set project '<your project id>'
-        gcloud functions deploy houston-cloud-function --runtime python39 --trigger-topic houston-cloud-function-topic \
-         --source pubsub_function --entry-point main --region europe-west2 --timeout 540 \
-         --set-env-vars GCLOUD_PROJECT='<your project id>' --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
-        ```
-        Note: the timeout is set to the maximum of 9 minutes. The default timeout may not be enough for most stages. 
+   ```bash
+   gcloud auth login
+   gcloud functions deploy houston-cloud-function --runtime python39 --trigger-topic houston-cloud-function-topic \
+       --source pubsub_function --entry-point main --region europe-west2 --timeout 540 \
+       --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
+   ```
+   Note: the timeout is set to the maximum of 9 minutes. The default timeout may not be enough for most stages. 
 
 3. Before we can use this function in our pipeline we need to grant it permission to trigger other functions. Grant the Cloud Functions Invoker (roles/cloudfunctions.invoker) role to the calling function identity on the receiving function. By default, this identity is PROJECT_ID@appspot.gserviceaccount.com.
 
 ## Start a Mission
 
-1. Start a mission with the Python client from the command line: 
+We will use the Houston Python client to create a mission and then trigger the first stages via Pub/Sub.
+
+1. First, ensure that you have created 'default credentials', which are required to publish Pub/Sub messages:
    ```bash
+   gcloud auth application-default login
+   ```
+
+2. Start a mission with the Python client from the command line: 
+   ```bash
+   export HOUSTON_KEY='<your api key>'
    python -m houston start --plan houston-quickstart
    ```
 
-2. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
+3. Go to the [Houston Dashboard](https://callhouston.io/dashboard) and check the active (or possibly already finished) 
 mission.
 
-Congratulations! You've got a completely serverless pipeline. 
+Congratulations! You've got a working microservice pipeline. 
 
 Now go to [your Cloud Function](https://console.cloud.google.com/functions/list) and
 view the logs to verify that the stages actually ran.
