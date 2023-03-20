@@ -1,46 +1,52 @@
 
 name: houston-quickstart
 
+services:
+  - name: houston-cloud-function
+    trigger:
+      method: pubsub
+      topic: houston-cloud-function-topic
+
 stages:
   - name: start
+    service: houston-cloud-function
     downstream:
       - upload-file-customers
       - upload-file-sales
     params:
-      topic: houston-cloud-function-topic-kit-fagan
       operation: none
 
   - name: upload-file-customers
+    service: houston-cloud-function
     downstream:
       - run-query-clean-customers
     params:
-      topic: houston-cloud-function-topic-kit-fagan
       file_location: customers.csv
       operation: upload
 
   - name: upload-file-sales
+    service: houston-cloud-function
     downstream:
       - run-query-clean-sales
     params:
-      topic: houston-cloud-function-topic-kit-fagan
       file_location: sales.csv
       operation: upload
 
   - name: run-query-clean-customers
+    service: houston-cloud-function
     params:
-      topic: houston-cloud-function-topic-kit-fagan
       operation: query
       query_name: foo.sql
 
   - name: run-query-clean-sales
+    service: houston-cloud-function
     params:
-      topic: houston-cloud-function-topic-kit-fagan
       operation: query
       query_name: foo.sql
 
   - name: run-query-report
+    service: houston-cloud-function
     params:
-      topic: houston-cloud-function-topic-kit-fagan
       operation: query
       query_name: foo.sql
     upstream:
