@@ -5,7 +5,7 @@
       "name": "houston-cloud-function",
       "trigger": {
         "method": "pubsub",
-        "topic": "houston-cloud-function-topic"
+        "topic": "houston-cloud-function-topic-kit-fagan"
       }
     }
     ],
