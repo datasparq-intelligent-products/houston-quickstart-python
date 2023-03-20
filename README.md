@@ -9,4 +9,6 @@ identical across all platforms, but there are differences in how each platform's
 - Amazon Web Services [coming soon]
 - Microsoft Azure [coming soon]
 
-For an interactive demo with fake plans and missions, try [Demo Mode](https://github.com/datasparq-ai/houston/blob/main/docs/demo_mode.md) (1 minute).
+For an interactive demo with fake plans and missions, try:
+- [API Demo Mode](https://github.com/datasparq-ai/houston/blob/main/docs/demo_mode.md) (1 minute).
+- [Dashboard demo](https://github.com/datasparq-ai/houston-ui/blob/dashboard/public/demo.html?demo) (0 minutes).
