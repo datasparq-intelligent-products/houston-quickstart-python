@@ -31,8 +31,20 @@ GCP zone, `houston_compute_name` must be a valid GCP compute name and `houston_k
 Details on how to pass this to terraform when planning or applying is available in the 
 [terraform docs](https://developer.hashicorp.com/terraform/cli/commands/plan)
 5. Run the command `terraform plan` to ensure none of your existing infrastructure will be changed or destroyed and then
-run `terraform apply` to deploy those changes to GCP.
-
+run `terraform apply` to deploy those changes to GCP. An error will occur when trying to create the Houston API key:
+```bash
+╷
+│ Error: Error making request
+│ 
+│   with module.houston-key.data.http.api_create_key,
+│   on .terraform/modules/houston-key/main.tf line 8, in data "http" "api_create_key":
+│    8: data "http" "api_create_key" {
+│ 
+│ Error making request: Post "http://<houston_ip_address>/api/v1/key": dial tcp <houston_ip_address>:80: connect: connection refused
+╵
+```
+Re-run `terraform apply` after waiting some time, usually a few minutes, as the compute instance for the Houston server 
+takes some time to setup. 
 
 The latest terraform documentation for the `houston` module can be found 
 [here](https://registry.terraform.io/modules/datasparq-ai/houston/google/latest) and for `houston-key` 
@@ -93,14 +105,20 @@ server.
    ```bash
    export HOUSTON_URL='<your Houston url>'
    ```
+   
+    If you didn't use the default value for `houston_key_name` then another environment variable is needed to specify 
+that key name.
+    ```bash
+    export HOUSTON_KEY_SECRET_NAME='<your Houston key secret name>'
+    ```
 
 2. Save the plan
    ```bash
    python -m houston save --plan plan.yaml
    ```
 
-3. Go to either our hosted [Houston Dashboard](https://callhouston.io/dashboard) or your self-hosted server's dashboard 
-and check your plan has appeared. Click on it to view the DAG. Click on a stage to view its params. 
+3. Go to your self-hosted server's dashboard and check your plan has appeared. Click on it to view the DAG. Click on a 
+stage to view its params. 
 
 ## Deploy a Cloud Function
 
@@ -155,11 +173,13 @@ We will use the Houston Python client to create a mission and then trigger the f
    export HOUSTON_KEY='<your api key>'
    # If you are self-hosting Houston also add this environment variable:
    export HOUSTON_URL='<your Houston url>'
+   # If you did not use the default Houston secret name, also add this environment variable:
+   export HOUSTON_KEY_SECRET_NAME='<your Houston key secret name>'
+   
    python -m houston start --plan houston-quickstart
    ```
 
-3. Go to the Datasparq hosted [Houston Dashboard](https://callhouston.io/dashboard) or your self-hosted one and check 
-the active (or possibly already finished) mission.
+3. Go to your self-hosted one and check the active (or possibly already finished) mission.
 
 Congratulations! You've got a working microservice pipeline. 
 
