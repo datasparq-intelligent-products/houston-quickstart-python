@@ -1,7 +1,6 @@
 
 # Houston Quickstart - Google Cloud Platform
-Houston can be used either via our own hosted services or can be self-hosted. In this guide we will first show you the 
-different ways to use the servers provided by us and how to setup your own with terraform. Once setup this guide will 
+In this guide we will first show you how to setup your own Houston server with terraform. Once setup this guide will 
 teach you how to use Houston to create a 100% serverless data pipeline on Google Cloud Platform using Python. You will 
 need access to a GCP project and have [gcloud](https://cloud.google.com/sdk/install) installed.
 
@@ -10,37 +9,34 @@ container based stages, just with different methods of triggering the stage.
 
 Google Cloud Functions can be triggered with Google Cloud Pub/Sub, as well as with HTTP requests. This example uses 
 Pub/Sub as this allows us to easily trigger functions in parallel, and guarantees our functions will execute by 
-re-sending unacknowledged messages. To use an HTTP trigger, follow the additional steps after the end of the quickstart.
-
-## Setup - Datasparq Hosted
-
-1. Create an account on [callhouston.io](http://callhouston.io)
-
-2. Activate the free subscription: Go to [_Account > Subscription_](https://callhouston.io/account/subscription) and 
-select the **_Free_** plan
-
-3. Create your API key: Go to [_Account > Key_](https://callhouston.io/account/key) and click **_Create_** 
-
-4. Install the Python client:
-   ```bash
-   pip install "houston-client[gcp]"
-   ```
-
-5. Clone the quickstart repository:
-   ```bash
-   git clone git@github.com:datasparq-intelligent-products/houston-quickstart-python.git
-   cd houston-quickstart-python
-   ```
-
-6. Change your working directory to the google-cloud directory inside this repo:
-   ```bash
-   cd google-cloud
-   ```
-7. Now skip to [**Create a Plan**](#Create a Plan)
+re-sending unacknowledged messages.
 
 ## Setup - Self Hosted via Terraform
 
-**TBA**
+1. First is to install terraform if you haven't already by following the instructions on the 
+[terraform website](https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/install-cli).
+2. Once installed, authenticate with gcloud using the following commands.
+```bash
+   gcloud auth login
+   gcloud auth application-default login
+```
+3. Change directory to the [terraform directory](./google-cloud/terraform) and initialise terraform.
+```bash
+    cd google-cloud/terraform
+    terraform init
+```
+4. (Optional) There are three variables in [variables.tf](./google-cloud/terraform/variables.tf) that can be set when deploying 
+with the terraform files provided. Defaults are set but if you wish to change them then `houston_zone` must be a valid 
+GCP zone, `houston_compute_name` must be a valid GCP compute name and `houston_key_name` must be a valid secret name.
+Details on how to pass this to terraform when planning or applying is available in the 
+[terraform docs](https://developer.hashicorp.com/terraform/cli/commands/plan)
+5. Run the command `terraform plan` to ensure none of your existing infrastructure will be changed or destroyed and then
+run `terraform apply` to deploy those changes to GCP.
+
+
+The latest terraform documentation for the `houston` module can be found 
+[here](https://registry.terraform.io/modules/datasparq-ai/houston/google/latest) and for `houston-key` 
+[here](https://registry.terraform.io/modules/datasparq-ai/houston-key/google/latest)
 
 ## Create a Plan
 
@@ -53,7 +49,10 @@ either YAML or JSON, and have the following structure:
    "services": [
       {
          "name": "my-microservice",
-         "trigger": {}
+         "trigger": {
+           "method": "pubsub",
+           "topic": "houston-cloud-function-topic"
+         }
       }
    ],
    "stages": [
@@ -62,14 +61,12 @@ either YAML or JSON, and have the following structure:
          "service": "my-microservice",
          "downstream": "run-query-clean-customers",
          "params": {
-           "topic": "houston-cloud-function-topic"
          }
       },
       {
          "name": "run-query-clean-customers",
          "service": "my-microservice",
          "params": {
-           "topic": "houston-cloud-function-topic"
          }
       },
       ...
