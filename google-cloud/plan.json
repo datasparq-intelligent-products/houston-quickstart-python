@@ -2,10 +2,10 @@
   "name": "houston-quickstart",
   "services": [
     {
-      "name": "kit-fagan-houston-dev",
+      "name": "houston-cloud-function",
       "trigger": {
         "method": "pubsub",
-        "topic": "houston-cloud-function-topic-kit-fagan"
+        "topic": "houston-cloud-function-topic"
       }
     }
     ],
