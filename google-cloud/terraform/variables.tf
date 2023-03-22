@@ -13,5 +13,5 @@ variable "houston_compute_name"{
 variable "houston_key_name" {
   type = string
   description = "Name for the Houston API Key and secret for your project"
-  default = "houston-default"
+  default = "houston-key"
 }
