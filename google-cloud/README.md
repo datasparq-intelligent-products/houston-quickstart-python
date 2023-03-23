@@ -1,4 +1,3 @@
-
 # Houston Quickstart - Google Cloud Platform
 In this guide we will first show you how to setup your own Houston server with terraform. Once setup this guide will 
 teach you how to use Houston to create a 100% serverless data pipeline on Google Cloud Platform using Python. You will 
@@ -10,6 +9,10 @@ container based stages, just with different methods of triggering the stage.
 Google Cloud Functions can be triggered with Google Cloud Pub/Sub, as well as with HTTP requests. This example uses 
 Pub/Sub as this allows us to easily trigger functions in parallel, and guarantees our functions will execute by 
 re-sending unacknowledged messages.
+
+If you are following this quickstart in an environment where there already exist one or more Houston instances, for 
+example a training project, then read [Appendix 1: Using Custom Names for Houston Infrastructure](#Appendix-1:-Using-Custom-Names-for-Houston-Infrastructure)
+first and take the additional actions mentioned.
 
 **Before continuing, clone this repo to your local machine**
 
@@ -27,12 +30,7 @@ re-sending unacknowledged messages.
     cd google-cloud/terraform
     terraform init
 ```
-4. (Optional) There are three variables in [variables.tf](./google-cloud/terraform/variables.tf) that can be set when deploying 
-with the terraform files provided. Defaults are set but if you wish to change them then `houston_zone` must be a valid 
-GCP zone, `houston_compute_name` must be a valid GCP compute name and `houston_key_name` must be a valid secret name.
-Details on how to pass this to terraform when planning or applying is available in the 
-[terraform docs](https://developer.hashicorp.com/terraform/cli/commands/plan)
-5. Run the command `terraform plan` to ensure none of your existing infrastructure will be changed or destroyed and then
+4. Run the command `terraform plan` to ensure none of your existing infrastructure will be changed or destroyed and then
 run `terraform apply` to deploy those changes to GCP. An error will occur when trying to create the Houston API key:
 ```bash
 ╷
@@ -156,7 +154,7 @@ If using gcloud, run the following in the command line. (you may want to change 
    gcloud auth login
    gcloud functions deploy houston-cloud-function --runtime python39 --trigger-topic houston-cloud-function-topic \
        --source pubsub_function --entry-point main --region europe-west2 --timeout 540 \
-       --set-env-vars HOUSTON_KEY=$HOUSTON_KEY
+       --set-env-vars HOUSTON_KEY=$HOUSTON_KEY --set-env-vars HOUSTON_BASE_URL=$HOUSTON_BASE_URL
    ```
    Note: the timeout is set to the maximum of 9 minutes. The default timeout may not be enough for most stages. 
 
@@ -175,8 +173,6 @@ We will use the Houston Python client to create a mission and then trigger the f
    ```bash
    export HOUSTON_KEY='<your api key>'
    export HOUSTON_BASE_URL='<your Houston url>'
-   # If you did not use the default Houston secret name, also add this environment variable:
-   export HOUSTON_KEY_SECRET_NAME='<your Houston key secret name>'
    
    python -m houston start --plan houston-quickstart
    ```
@@ -194,3 +190,24 @@ stages actually ran.
    ```bash
    python -m houston delete --plan houston-quickstart
    ```
+   
+## Appendix 1: Using Custom Names for Houston Infrastructure
+
+In step 3 of **Deploy via Terraform**, change to the [terraform-with-variables](./google-cloud/terraform-with-variables) 
+directory instead by running this command:
+```bash
+cd google-cloud/terraform-with-variables
+terraform init
+```
+
+There are three variables in [variables.tf](./google-cloud/terraform-with-variables/variables.tf) that can be set when deploying 
+with the terraform files provided. Defaults are set but if you wish to change them then `houston_zone` must be a valid 
+GCP zone, `houston_compute_name` must be a valid GCP compute name and `houston_key_name` must be a valid secret name.
+Details on how to pass this to terraform when planning or applying is available in the 
+[terraform docs](https://developer.hashicorp.com/terraform/cli/commands/plan).
+
+If `houston_key_name` is changed, then the cloud function will need that value as an environment variable with the key 
+`HOUSTON_KEY_SECRET_NAME`. In addition, export that environment variable for the client to use:
+```bash
+export HOUSTON_KEY_SECRET_NAME=<your houstuon_key_name>
+```
