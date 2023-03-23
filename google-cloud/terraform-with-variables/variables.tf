@@ -7,7 +7,7 @@ variable "houston_zone" {
 variable "houston_compute_name"{
   type = string
   description = "Name for the compute instance used by the houston server"
-  default = "houston-quickstart-server"
+  default = "houston-host"
 }
 
 variable "houston_key_name" {
