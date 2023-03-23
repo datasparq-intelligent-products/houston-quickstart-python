@@ -11,6 +11,8 @@ Google Cloud Functions can be triggered with Google Cloud Pub/Sub, as well as wi
 Pub/Sub as this allows us to easily trigger functions in parallel, and guarantees our functions will execute by 
 re-sending unacknowledged messages.
 
+**Before continuing, clone this repo to your local machine**
+
 ## Deploy via Terraform
 
 1. First is to install terraform if you haven't already by following the instructions on the 
