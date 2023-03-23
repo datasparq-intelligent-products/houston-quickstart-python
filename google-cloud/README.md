@@ -11,7 +11,7 @@ Google Cloud Functions can be triggered with Google Cloud Pub/Sub, as well as wi
 Pub/Sub as this allows us to easily trigger functions in parallel, and guarantees our functions will execute by 
 re-sending unacknowledged messages.
 
-## Setup - Self Hosted via Terraform
+## Deploy via Terraform
 
 1. First is to install terraform if you haven't already by following the instructions on the 
 [terraform website](https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/install-cli).
@@ -94,17 +94,12 @@ The plan definition has been written out in [plan.yaml](plan.yaml). An equivalen
 
 We'll use the Houston Python client to save the plan.
 
-1. Set your Houston API key as an environment variable:  
+1. Set your Houston API key and Houston URL as an environment variable:  
    ```bash
    export HOUSTON_KEY='<your api key>'
+   export HOUSTON_BASE_URL='<your Houston url>'
    ```
    **Never commit this key anywhere in your repo!**
-   
-   If you have a self-hosted solution then you will need another environment variable for the URL and port for your 
-server.
-   ```bash
-   export HOUSTON_URL='<your Houston url>'
-   ```
    
     If you didn't use the default value for `houston_key_name` then another environment variable is needed to specify 
 that key name.
@@ -140,14 +135,14 @@ single cloud function that will execute a Python function corresponding to the H
      - Under Runtime > Runtime Environment Variables
        - Add an environment variable with NAME = `GCLOUD_PROJECT` and VALUE = _your GCP project ID_
        - Add an environment variable with NAME = `HOUSTON_KEY` and VALUE = _your houston api key_
-       - If self-hosting, add an environment variable with NAME = `HOUSTON_URL` and VALUE = _your houston server url_
+       - Add an environment variable with NAME = `HOUSTON_BASE_URL` and VALUE = _your houston server url_
      - On the Code page
        - Set the Runtime to Python 3.9
        - Copy _pusbsub_function/main.py_ into the box for MAIN.PY  
        - Copy _pusbsub_function/requirements.txt_ into the box for REQUIREMENTS.TXT
      - Click _Deploy_
 
-        If using gcloud, run the following in the command line. (you may want to change the region to one closer to you):
+If using gcloud, run the following in the command line. (you may want to change the region to one closer to you):
 
    ```bash
    gcloud auth login
@@ -171,8 +166,7 @@ We will use the Houston Python client to create a mission and then trigger the f
 2. Start a mission with the Python client from the command line: 
    ```bash
    export HOUSTON_KEY='<your api key>'
-   # If you are self-hosting Houston also add this environment variable:
-   export HOUSTON_URL='<your Houston url>'
+   export HOUSTON_BASE_URL='<your Houston url>'
    # If you did not use the default Houston secret name, also add this environment variable:
    export HOUSTON_KEY_SECRET_NAME='<your Houston key secret name>'
    
