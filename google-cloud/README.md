@@ -50,6 +50,12 @@ The latest terraform documentation for the `houston` module can be found
 [here](https://registry.terraform.io/modules/datasparq-ai/houston/google/latest) and for `houston-key` 
 [here](https://registry.terraform.io/modules/datasparq-ai/houston-key/google/latest)
 
+You will also need to find your Houston Base URL to use the client and setup the Cloud Function. There are three ways
+you can find this:
+1. Going to Google Compute Engine and looking at the public IP, meaning your base URL is `http://<public ip>/api/v1`
+2. Going to the Secret Manager in the cloud console and viewing the secret value
+3. Using gcloud to print the secret: `gcloud secrets versions access latest --secret=houston-base-url`
+
 ## Create a Plan
 
 We need to create a plan that Houston can follow to sting together each stage of this pipeline. Plans are defined in 
