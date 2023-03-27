@@ -1,15 +1,14 @@
-
 name: houston-quickstart
 
 services:
-  - name: houston-cloud-function
+  - name: houston-quickstart
     trigger:
       method: pubsub
       topic: houston-cloud-function-topic
 
 stages:
   - name: start
-    service: houston-cloud-function
+    service: houston-quickstart
     downstream:
       - upload-file-customers
       - upload-file-sales
@@ -17,7 +16,7 @@ stages:
       operation: none
 
   - name: upload-file-customers
-    service: houston-cloud-function
+    service: houston-quickstart
     downstream:
       - run-query-clean-customers
     params:
@@ -25,7 +24,7 @@ stages:
       operation: upload
 
   - name: upload-file-sales
-    service: houston-cloud-function
+    service: houston-quickstart
     downstream:
       - run-query-clean-sales
     params:
@@ -33,19 +32,19 @@ stages:
       operation: upload
 
   - name: run-query-clean-customers
-    service: houston-cloud-function
+    service: houston-quickstart
     params:
       operation: query
       query_name: foo.sql
 
   - name: run-query-clean-sales
-    service: houston-cloud-function
+    service: houston-quickstart
     params:
       operation: query
       query_name: foo.sql
 
   - name: run-query-report
-    service: houston-cloud-function
+    service: houston-quickstart
     params:
       operation: query
       query_name: foo.sql
