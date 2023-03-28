@@ -48,6 +48,13 @@ houston create-key -i quickstart -n quickstart
 
 ### 2. Create a Plan
 
+First, clone the quickstart repository:
+
+```bash
+git clone git@github.com:datasparq-intelligent-products/houston-quickstart-python.git
+cd houston-quickstart-python/local
+```
+
 There is an example plan in this repository; see [plan.yaml](plan.yaml). It contains:
 - A service definition, which tells our services how to trigger each other:
   ```yaml
