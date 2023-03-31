@@ -105,8 +105,8 @@ We'll use the Houston Python client to save the plan.
    ```bash
    python -m houston save --plan plan.yaml
    ```
-3. Go to your Houston server's dashboard (at `http://<your Houston VM public IP>`) and check your plan has appeared. 
-   Click on it to view the DAG. Click on a stage to view its params. 
+3. Go to your Houston server's dashboard (at `http://<your Houston VM public IP>`) and enter your Houston key (this is the value of `echo $HOUSTON_KEY`). 
+   Check your plan has appeared. Click on it to view it as a DAG. Click on a stage to view its params. 
 
 ## Deploy a Cloud Function
 
