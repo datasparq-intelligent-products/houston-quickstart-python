@@ -75,6 +75,8 @@ There is an example plan in this repository; see [plan.yaml](plan.yaml). It cont
        operation: "start-story"
   ```
 
+TODO: install houston Python client  
+
 Save the plan using the python client. We need to tell the client which key to use and the address of our 
 Houston server, via environment variables:
 
