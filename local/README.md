@@ -75,16 +75,26 @@ There is an example plan in this repository; see [plan.yaml](plan.yaml). It cont
        operation: "start-story"
   ```
 
-Save the plan using the python client. We need to tell the client which key to use and the address of our 
+Saving the plan involves the Python client for Houston, which needs to be installed in the first order.
+```bash 
+pip install houston-client
+```
+
+Then we need to tell the client which key to use and the address of our 
 Houston server, via environment variables:
 
 ```bash
 export HOUSTON_KEY=quickstart
 export HOUSTON_BASE_URL="http://localhost:8000/api/v1"
+```
+
+Lastly, we need to save the plan using the python client.
+
+```bash 
 python -m houston save plan.yaml
 ```
 
-Then go to http://localhost:8000. Enter your Houston key 'quickstart'.
+Upon that go to http://localhost:8000. Enter your Houston key 'quickstart'.
 
 
 #### 3. Create a service

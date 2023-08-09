@@ -1,2 +1,3 @@
 fastapi
+uvicorn
 houston-client>=1.3.0
