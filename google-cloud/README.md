@@ -1,6 +1,6 @@
 # Houston Quickstart - Google Cloud Platform
 
-In this guide we will first set up a Houston server with terraform, then create a data pipeline using serverless tools. 
+In this guide we will first set up a Houston server (virtual machine) with terraform, then create a serverless data pipeline. 
 You will need access to a GCP project and have [gcloud](https://cloud.google.com/sdk/install) installed.
 
 This guide will incur a Google Cloud bill of about £0.10. Care should be taken to delete all resources once completed, see [clean up](#clean-up).
@@ -21,6 +21,14 @@ cd houston-quickstart-python/google-cloud
 ```
 
 ## Deploy via Terraform
+
+You can use Terraform to quickly create all the required infrastructure. This includes:
+- A Compute Engine Virtual Machine, which runs the Houston Docker image, and serves the API and dashboard
+- A static IP for the Virtual Machine
+- Various secrets stored in Secret Manager:
+  - A randomly generated admin password for the Houston API (required to create keys)
+  - A randomly generated Houston key
+  - The URL of the Houston API (running on the Virtual Machine)
 
 1. Install terraform if you haven't already by following the instructions on the [terraform website](https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/install-cli).
 2. Once installed, authenticate with gcloud using the following commands.
@@ -52,9 +60,8 @@ The latest terraform documentation for the `houston` module can be found
 You will also need to find your Houston Key and Houston Base URL to use the client and set up the Cloud Function. There are three ways
 you can find this:
 1. Getting them from the outputs defined in [terraform/outputs.tf](./terraform/outputs.tf): `terraform output -json`
-2. Using gcloud to print the secret: `gcloud secrets versions access latest --secret=houston-base-url`
-3. Going to [Google Compute Engine](https://console.cloud.google.com/compute/instances) and looking at the external IP, meaning your base URL is `http://<external ip>/api/v1`
-4. Going to the [Secret Manager](https://console.cloud.google.com/security/secret-manager/secret/houston-base-url/versions) in the cloud console and viewing the secret value
+2. Using gcloud to print the secret: `gcloud secrets versions access latest --secret=houston-key` and `gcloud secrets versions access latest --secret=houston-base-url` 
+3. Going to the [secrets](https://console.cloud.google.com/security/secret-manager) in the cloud console and viewing the secret values
 
 ## Create a Plan
 
@@ -201,10 +208,10 @@ If `houston_key_name` is changed, then the cloud function will need that value a
 `HOUSTON_KEY_SECRET_NAME`. Add the following to the `gcloud functions deploy` command:
 
 ```text
---set-env-vars HOUSTON_KEY_SECRET_NAME=<your houstuon_key_name>  \
+--set-env-vars HOUSTON_KEY_SECRET_NAME=<your houston_key_name>  \
 ```
 
 In addition, anything you do locally with the Houston client (e.g. `python -m houston save`) will require this environment variable:
 ```bash
-export HOUSTON_KEY_SECRET_NAME=<your houstuon_key_name>
+export HOUSTON_KEY_SECRET_NAME=<your houston_key_name>
 ```

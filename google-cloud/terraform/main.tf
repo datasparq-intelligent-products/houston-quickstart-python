@@ -20,4 +20,6 @@ module "houston-key" {
   houston_base_url = module.houston.houston_base_url
   houston_password = module.houston.houston_password
 #  secret_name = "my-houston-key"  // uncomment this if you don't want to use the default name 'houston-key'
+
+  depends_on = [module.houston]
 }
